@@ -3,19 +3,36 @@ const app = express();
 const http = require("http");
 const server = http.createServer(app);
 const morgan = require("morgan");
-const cors = require("cors");
+const { Server } = require("socket.io");
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
 
 // Using Middlewares
 app.use(morgan("dev"));
-app.use(express.json());
-app.use(cors());
 
 //Routes
 app.get("/", (req, res) => {
   res.send("Welcome to home page");
 });
 
+//Listening Socket.io events
+io.on("connection", (socket) => {
+  console.log(`${socket.id} -- connected`);
+
+  //Event listeners
+  socket.on("user-joined", (data) => {
+    console.log("Data => ", data);
+  });
+
+  socket.on("disconnect", (socket) => {
+    console.log("User disconnected...");
+  });
+});
+
 //Listening server of port
-app.listen(8000, () => {
+server.listen(8000, () => {
   console.log("Listening on", 8000, "port");
 });
