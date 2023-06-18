@@ -1,20 +1,19 @@
 import React, { useState } from "react";
-import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
   const [Input, setInput] = useState("");
-  const socket = io.connect("http://localhost:8000");
 
   const handleOnClick = () => {
     if (!Input) return alert("Please enter your name");
-    socket.emit("user-joined", {
-      id: socket.id,
-      name: Input,
-    });
+
     setInput("");
-    navigate("/chat-room");
+    navigate("/chat-room", {
+      state: {
+        name: Input,
+      },
+    });
   };
   return (
     <div

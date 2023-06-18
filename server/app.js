@@ -24,7 +24,12 @@ io.on("connection", (socket) => {
 
   //Event listeners
   socket.on("user-joined", (data) => {
-    console.log("Data => ", data);
+    console.log(`${data.name} joined the chat room`);
+    socket.broadcast.emit("new-user-joined", data.name);
+  });
+
+  socket.on("send", (data) => {
+    console.log(`${data.name} send a message =>`, data.message);
   });
 
   socket.on("disconnect", (socket) => {
