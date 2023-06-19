@@ -30,6 +30,7 @@ io.on("connection", (socket) => {
 
   socket.on("send", (data) => {
     console.log(`${data.name} send a message =>`, data.message);
+    socket.broadcast.emit("receive", data);
   });
 
   socket.on("disconnect", (socket) => {

@@ -1,31 +1,43 @@
-import React from "react";
+import React, { useCallback } from "react";
 import Message from "../components/message";
 import { io } from "socket.io-client";
 import { useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import userJoinedAudio from "../assets/audio/user-join.mp3";
+import messageAudio from "../assets/audio/message.mp3";
 
+const socket = io.connect("http://localhost:8000");
 const ChatRoom = () => {
-  const socket = io.connect("http://localhost:8000");
   const location = useLocation();
   const [Input, setInput] = React.useState("");
+  const [message, setMessage] = React.useState({});
+
   const userJoinAudio = new Audio(userJoinedAudio);
+  const messagedAudio = new Audio(messageAudio);
 
-  socket.on("new-user-joined", (data) => {
-    userJoinAudio.play();
-    toast.info(`${data} joined the chat room`, {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-      theme: "dark",
-    });
+  socket.on(
+    "new-user-joined",
+    (data) => {
+      toast.info(`${data} joined the chat room`, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: false,
+        progress: undefined,
+        theme: "dark",
+      });
+      userJoinAudio.play();
+    },
+    [location.state.name]
+  );
+
+  socket.on("receive", (data) => {
+    setMessage({ message: data.message, author: data.name });
+    messagedAudio.play();
   });
-
   const onSendHandler = () => {
     socket.emit("send", {
       id: socket.id,
@@ -35,7 +47,6 @@ const ChatRoom = () => {
   };
 
   if (location.state.name) {
-    console.log("in the location if===");
     socket.emit("user-joined", {
       id: socket.id,
       name: location.state.name,
@@ -82,7 +93,13 @@ const ChatRoom = () => {
             overflowY: "scroll",
           }}
         >
-          <Message message={Input} position={"left"} />
+          {message?.author && (
+            <Message
+              author={message.author}
+              message={message.message}
+              position={"left"}
+            />
+          )}
         </div>
 
         {/* message typer */}

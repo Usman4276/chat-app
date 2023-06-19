@@ -1,6 +1,6 @@
 import React from "react";
 
-const Message = ({ message, position }) => {
+const Message = ({ author, message, position }) => {
   return (
     <div
       style={{
@@ -12,7 +12,7 @@ const Message = ({ message, position }) => {
         fontSize: "1.3rem",
       }}
     >
-      {message}
+      {author} : {message}
     </div>
   );
 };
