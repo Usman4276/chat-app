@@ -20,21 +20,17 @@ app.get("/", (req, res) => {
 
 //Listening Socket.io events
 io.on("connection", (socket) => {
-  console.log(`${socket.id} -- connected`);
-
   //Event listeners
   socket.on("user-joined", (data) => {
-    console.log(`${data.name} joined the chat room`);
     socket.broadcast.emit("new-user-joined", data.name);
   });
 
   socket.on("send", (data) => {
-    console.log(`${data.name} send a message =>`, data.message);
     socket.broadcast.emit("receive", data);
   });
 
-  socket.on("disconnect", (socket) => {
-    console.log("User disconnected...");
+  socket.on("disconnect", () => {
+    console.log("User disconnected ...");
   });
 });
 

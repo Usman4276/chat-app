@@ -1,19 +1,17 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import MyContext from "../context";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { setContext } = useContext(MyContext);
   const [Input, setInput] = useState("");
 
   const handleOnClick = () => {
     if (!Input) return alert("Please enter your name");
-
+    setContext(Input);
     setInput("");
-    navigate("/chat-room", {
-      state: {
-        name: Input,
-      },
-    });
+    navigate("/chat-room");
   };
   return (
     <div

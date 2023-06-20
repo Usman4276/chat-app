@@ -1,14 +1,16 @@
-import React, { useCallback } from "react";
-import Message from "../components/message";
-import { io } from "socket.io-client";
+import React, { useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import userJoinedAudio from "../assets/audio/user-join.mp3";
+import { io } from "socket.io-client";
 import messageAudio from "../assets/audio/message.mp3";
+import userJoinedAudio from "../assets/audio/user-join.mp3";
+import Message from "../components/message";
+import MyContext from "../context";
 
 const socket = io.connect("http://localhost:8000");
 const ChatRoom = () => {
+  const { context } = useContext(MyContext);
   const location = useLocation();
   const [Input, setInput] = React.useState("");
   const [message, setMessage] = React.useState({});
@@ -16,42 +18,52 @@ const ChatRoom = () => {
   const userJoinAudio = new Audio(userJoinedAudio);
   const messagedAudio = new Audio(messageAudio);
 
-  socket.on(
-    "new-user-joined",
-    (data) => {
-      toast.info(`${data} joined the chat room`, {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: false,
-        progress: undefined,
-        theme: "dark",
-      });
-      userJoinAudio.play();
-    },
-    [location.state.name]
-  );
+  socket.on("new-user-joined", (data) => {
+    toast.info(`${data} joined the chat room`, {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+      theme: "dark",
+    });
+    userJoinAudio.play();
+  });
 
   socket.on("receive", (data) => {
     setMessage({ message: data.message, author: data.name });
     messagedAudio.play();
   });
+
   const onSendHandler = () => {
     socket.emit("send", {
       id: socket.id,
-      name: location.state.name,
+      name: context,
       message: Input,
     });
   };
 
-  if (location.state.name) {
+  socket.on("disconnect", () => {
+    return toast.info("User disconnected", {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+      theme: "dark",
+    });
+  });
+
+  useEffect(() => {
     socket.emit("user-joined", {
       id: socket.id,
-      name: location.state.name,
+      name: context,
     });
-  }
+  }, [context]);
 
   return (
     <>
