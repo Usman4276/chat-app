@@ -1,5 +1,5 @@
-import React, { useContext, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useCallback, useContext, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { io } from "socket.io-client";
@@ -10,7 +10,8 @@ import MyContext from "../context";
 
 const socket = io.connect("http://localhost:8000");
 const ChatRoom = () => {
-  const { context } = useContext(MyContext);
+  const navigate = useNavigate();
+  const { context, setContext } = useContext(MyContext);
   const location = useLocation();
   const [Input, setInput] = React.useState("");
   const [message, setMessage] = React.useState({});
@@ -19,22 +20,22 @@ const ChatRoom = () => {
   const messagedAudio = new Audio(messageAudio);
 
   socket.on("new-user-joined", (data) => {
-    toast.info(`${data} joined the chat room`, {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-      theme: "dark",
-    });
-    userJoinAudio.play();
+    // toast.info(`${data} joined the chat room`, {
+    //   position: "top-center",
+    //   autoClose: 3000,
+    //   hideProgressBar: true,
+    //   closeOnClick: true,
+    //   pauseOnHover: false,
+    //   draggable: false,
+    //   progress: undefined,
+    //   theme: "dark",
+    // });
+    alert(`${data} has joined the chat room`);
   });
 
   socket.on("receive", (data) => {
     setMessage({ message: data.message, author: data.name });
-    messagedAudio.play();
+    // messagedAudio.play();
   });
 
   const onSendHandler = () => {
@@ -45,24 +46,16 @@ const ChatRoom = () => {
     });
   };
 
-  socket.on("disconnect", () => {
-    return toast.info("User disconnected", {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-      theme: "dark",
-    });
-  });
-
-  useEffect(() => {
+  const userJoined = useCallback(() => {
     socket.emit("user-joined", {
       id: socket.id,
       name: context,
     });
+  });
+
+  useEffect(() => {
+    if (!context) return navigate("/");
+    userJoined();
   }, [context]);
 
   return (

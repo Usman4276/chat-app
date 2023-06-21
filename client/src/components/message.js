@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 
 const Message = ({ author, message, position }) => {
-  const [PrevMessages, setPrevMessages] = useState([{}]);
+  const [PrevMessages, setPrevMessages] = useState([]);
 
   useEffect(() => {
-    setPrevMessages([
-      {
-        ...PrevMessages,
-        author,
-        message,
-        position,
-      },
+    setPrevMessages((messageList) => [
+      ...messageList,
+      { author, message, position },
     ]);
   }, [message]);
+
+  useEffect(() => {
+    console.log(PrevMessages);
+  }, [PrevMessages]);
 
   return (
     <>
@@ -31,7 +31,6 @@ const Message = ({ author, message, position }) => {
             >
               {value.author} : {value.message}
             </div>
-            <br />
           </>
         );
       })}

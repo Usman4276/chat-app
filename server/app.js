@@ -22,6 +22,7 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   //Event listeners
   socket.on("user-joined", (data) => {
+    console.log("user-joined==>", data);
     socket.broadcast.emit("new-user-joined", data.name);
   });
 

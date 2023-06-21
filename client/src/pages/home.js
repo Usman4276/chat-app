@@ -10,6 +10,7 @@ const Home = () => {
   const handleOnClick = () => {
     if (!Input) return alert("Please enter your name");
     setContext(Input);
+    localStorage.setItem("name", Input);
     setInput("");
     navigate("/chat-room");
   };
