@@ -5,12 +5,17 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const navigate = useNavigate();
   const { setContext } = useContext(MyContext);
-  const [Input, setInput] = useState("");
+  const [Input, setInput] = useState({
+    name: "",
+    roomId: "",
+  });
 
   const handleOnClick = () => {
     if (!Input) return alert("Please enter your name");
-    setContext(Input);
-    localStorage.setItem("name", Input);
+    setContext({
+      name: Input.name,
+      roomId: Input.roomId,
+    });
     setInput("");
     navigate("/chat-room");
   };
@@ -36,16 +41,26 @@ const Home = () => {
           boxShadow: "0px 0px 12px 6px #8080806b",
         }}
       >
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <input
             id="name"
             placeholder="Enter your name"
             style={{ padding: "10px", width: "20rem" }}
             type="text"
-            value={Input}
+            value={Input.name}
             name="name"
             onChange={(e) => {
-              setInput(e.target.value);
+              setInput({ ...Input, [e.target.name]: e.target.value });
+            }}
+          />
+          <input
+            placeholder="Enter room id"
+            style={{ padding: "10px", width: "20rem" }}
+            type="text"
+            value={Input.roomId}
+            name="roomId"
+            onChange={(e) => {
+              setInput({ ...Input, [e.target.name]: e.target.value });
             }}
           />
         </div>

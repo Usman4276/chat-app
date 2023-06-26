@@ -20,17 +20,16 @@ const ChatRoom = () => {
   const messagedAudio = new Audio(messageAudio);
 
   socket.on("new-user-joined", (data) => {
-    // toast.info(`${data} joined the chat room`, {
-    //   position: "top-center",
-    //   autoClose: 3000,
-    //   hideProgressBar: true,
-    //   closeOnClick: true,
-    //   pauseOnHover: false,
-    //   draggable: false,
-    //   progress: undefined,
-    //   theme: "dark",
-    // });
-    alert(`${data} has joined the chat room`);
+    toast.info(`${data} joined the chat room`, {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+      theme: "dark",
+    });
   });
 
   socket.on("receive", (data) => {
@@ -46,12 +45,12 @@ const ChatRoom = () => {
     });
   };
 
-  const userJoined = useCallback(() => {
+  const userJoined = () => {
     socket.emit("user-joined", {
       id: socket.id,
-      name: context,
+      name: context.name,
     });
-  });
+  };
 
   useEffect(() => {
     if (!context) return navigate("/");

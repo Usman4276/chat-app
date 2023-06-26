@@ -5,7 +5,7 @@ import ChatRoom from "./pages/chatRoom";
 import MyContext from "./context";
 
 function App() {
-  const [context, setContext] = useState("");
+  const [context, setContext] = useState({});
 
   return (
     <>
