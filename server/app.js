@@ -20,18 +20,20 @@ app.get("/", (req, res) => {
 
 //Listening Socket.io events
 io.on("connection", (socket) => {
+  console.log("socket connection is established===>", socket.id);
   //Event listeners
-  socket.on("user-joined", (data) => {
-    console.log("user-joined==>", data);
-    socket.emit("new-user-joined", data.name);
+  socket.on("room-joined", (data) => {
+    console.log("room-joined==>", data);
+    socket.join(data.roomId);
+    socket.to(data.roomId).emit("new-user-joined", data);
   });
 
   socket.on("send", (data) => {
-    socket.broadcast.emit("receive", data);
+    socket.to(data.roomId).emit("receive", data);
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected ...");
+    console.log("socket disconnected==>", socket.id);
   });
 });
 

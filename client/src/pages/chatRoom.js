@@ -1,61 +1,81 @@
-import React, { useCallback, useContext, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useContext, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { io } from "socket.io-client";
 import messageAudio from "../assets/audio/message.mp3";
 import userJoinedAudio from "../assets/audio/user-join.mp3";
-import Message from "../components/message";
 import MyContext from "../context";
 
 const socket = io.connect("http://localhost:8000");
 const ChatRoom = () => {
+  const ref = useRef(null);
   const navigate = useNavigate();
   const { context, setContext } = useContext(MyContext);
-  const location = useLocation();
   const [Input, setInput] = React.useState("");
-  const [message, setMessage] = React.useState({});
+  const [message, setMessage] = React.useState([]);
 
   const userJoinAudio = new Audio(userJoinedAudio);
   const messagedAudio = new Audio(messageAudio);
 
-  socket.on("new-user-joined", (data) => {
-    toast.info(`${data} joined the chat room`, {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-      theme: "dark",
+  const onNewUserJoined = () => {
+    console.log("new user joined----");
+    socket.on("new-user-joined", (data) => {
+      toast.info(`${data.name} joined the chat room`, {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: false,
+        progress: undefined,
+        theme: "dark",
+      });
+      userJoinAudio.play();
     });
-  });
+  };
 
-  socket.on("receive", (data) => {
-    setMessage({ message: data.message, author: data.name });
-    // messagedAudio.play();
-  });
+  const onReceiveMessage = () => {
+    socket.on("receive", (data) => {
+      setMessage((val) => [
+        ...val,
+        { message: data.message, author: data.name },
+      ]);
+      messagedAudio.play();
+    });
+  };
 
   const onSendHandler = () => {
+    setInput("");
+    setMessage((val) => [...val, { message: Input, author: context.name }]);
     socket.emit("send", {
       id: socket.id,
-      name: context,
+      name: context.name,
+      roomId: context.roomId,
       message: Input,
     });
   };
 
   const userJoined = () => {
-    socket.emit("user-joined", {
-      id: socket.id,
+    socket.emit("room-joined", {
       name: context.name,
+      roomId: context.roomId,
     });
   };
 
   useEffect(() => {
-    if (!context) return navigate("/");
+    if (!context.name) return navigate("/");
     userJoined();
   }, [context]);
+
+  useEffect(() => {
+    onReceiveMessage();
+    onNewUserJoined();
+  }, []);
+
+  useEffect(() => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
+  }, [message]);
 
   return (
     <>
@@ -97,13 +117,31 @@ const ChatRoom = () => {
             overflowY: "scroll",
           }}
         >
-          {message?.author && (
-            <Message
-              author={message.author}
-              message={message.message}
-              position={"left"}
-            />
-          )}
+          {message &&
+            message.map((value, index) => {
+              return (
+                <div
+                  key={index}
+                  ref={ref}
+                  style={{
+                    display: "inline-block",
+                    float: value.author === context.name ? "right" : "left",
+                    backgroundColor:
+                      value.author === context.name && "limegreen",
+                    color: value.author === context.name && "white",
+                    clear: value.author === context.name ? "left" : "right",
+                    padding: "10px",
+                    borderRadius: "20px",
+                    boxShadow: "0px 2px 4px 2px #00000080",
+                    fontSize: "1.3rem",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  {value.author === context.name ? "Me" : value.author} :{" "}
+                  {value.message}
+                </div>
+              );
+            })}
         </div>
 
         {/* message typer */}
