@@ -7,7 +7,7 @@ import messageAudio from "../assets/audio/message.mp3";
 import userJoinedAudio from "../assets/audio/user-join.mp3";
 import MyContext from "../context";
 
-const socket = io.connect("http://localhost:8000");
+const socket = io.connect(process.env.REACT_APP_ALLOWED_ORIGIN);
 const ChatRoom = () => {
   const ref = useRef(null);
   const navigate = useNavigate();
