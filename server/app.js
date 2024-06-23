@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
+const cors = require("cors");
 const http = require("http");
 const server = http.createServer(app);
 const morgan = require("morgan");
@@ -12,6 +13,7 @@ const io = new Server(server, {
 });
 
 // Using Middlewares
+app.use(cors());
 app.use(morgan("dev"));
 
 //Routes
