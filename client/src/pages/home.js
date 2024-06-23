@@ -1,0 +1,85 @@
+import React, { useContext, useState } from "react";
+import MyContext from "../context";
+import { useNavigate } from "react-router-dom";
+
+const Home = () => {
+  const navigate = useNavigate();
+  const { setContext } = useContext(MyContext);
+  const [Input, setInput] = useState({
+    name: "",
+    roomId: "",
+  });
+
+  const handleOnClick = () => {
+    if (!Input) return alert("Please enter your name");
+    setContext({
+      name: Input.name,
+      roomId: Input.roomId,
+    });
+    setInput("");
+    navigate("/chat-room");
+  };
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "97vh",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          gap: "1rem",
+          border: 0,
+          padding: "2rem",
+          borderRadius: "10px",
+          boxShadow: "0px 0px 12px 6px #8080806b",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <input
+            id="name"
+            placeholder="Enter your name"
+            style={{ padding: "10px", width: "20rem" }}
+            type="text"
+            value={Input.name}
+            name="name"
+            onChange={(e) => {
+              setInput({ ...Input, [e.target.name]: e.target.value });
+            }}
+          />
+          <input
+            placeholder="Enter room id"
+            style={{ padding: "10px", width: "20rem" }}
+            type="text"
+            value={Input.roomId}
+            name="roomId"
+            onChange={(e) => {
+              setInput({ ...Input, [e.target.name]: e.target.value });
+            }}
+          />
+        </div>
+        <button
+          style={{
+            cursor: "pointer",
+            border: 0,
+            padding: "10px",
+            borderRadius: "10px",
+            backgroundColor: "#addb70",
+            boxShadow: "0px 2px 5px 2px #808080ab",
+          }}
+          onClick={handleOnClick}
+        >
+          Join The Chat Room
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Home;
